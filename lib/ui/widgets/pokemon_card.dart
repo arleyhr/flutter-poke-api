@@ -4,8 +4,9 @@ class PokemonCard extends StatelessWidget {
   String id;
   String image;
   Color color;
+  ValueKey key;
 
-  PokemonCard(@required this.id, @required this.image, @required this.color);
+  PokemonCard({@required this.id, @required this.image, @required this.color, this.key });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class PokemonCard extends StatelessWidget {
                   right: 0.0,
                   child: Container(
                     height: 30.0,
-                    width: 30.0,
+                    width: 40.0,
                     color: Colors.white,
                     child: Text('#$id'),
                     alignment: Alignment.center,

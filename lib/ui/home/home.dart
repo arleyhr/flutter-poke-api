@@ -14,57 +14,69 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   KtList<Pokemon> _pokemonList = emptyList();
+  bool _isLoading = false;
+  final ScrollController _scrollController = ScrollController(debugLabel: 'pokemonSc');
+
+  final colors = [
+    Colors.amber,Colors.blueAccent,Colors.greenAccent,Colors.redAccent,Colors.orangeAccent,Colors.black,Colors.lime,Colors.teal,Colors.lightGreen,Colors.purpleAccent,Colors.blue,Colors.amberAccent,Colors.yellowAccent,Colors.white54,Colors.cyanAccent,Colors.black45,Colors.deepOrangeAccent
+  ];
 
   @override
   void initState() {
     super.initState();
-    getPokemonList();
-  }
-  getPokemonList () async {
-    final pokemonList = await pokeApi.getPokemonList();
-    setState(() {
-      _pokemonList = pokemonList;
-    });
-  }
+    _fetchPokemonList();
 
-  _generatePokemonItems () {
-    final colors = [
-      Colors.amber,
-      Colors.blueAccent,
-      Colors.greenAccent,
-      Colors.redAccent,
-      Colors.orangeAccent,
-      Colors.black,
-      Colors.lime,
-      Colors.teal,
-      Colors.lightGreen,
-      Colors.purpleAccent,
-      Colors.blue,
-      Colors.amberAccent,
-      Colors.yellowAccent,
-      Colors.white54,
-      Colors.cyanAccent,
-      Colors.black45,
-      Colors.deepOrangeAccent
-    ];
-    List<Widget> pokemonItems = List<Widget>();
-    _pokemonList.forEach((item) {
-      var randomColorIndex = new Random().nextInt(colors.length);
-      pokemonItems.add(
-        PokemonCard(item.id, getPokemonImage(item.id), colors[randomColorIndex])
-      );
+    _scrollController.addListener(() {
+      if (!_isLoading && _scrollController.position.extentAfter == 0.0) {
+        _fetchPokemonList();
+      }
     });
-    return pokemonItems;
+
+  }
+  _fetchPokemonList () async {
+    setState(() {
+      _isLoading = true;
+    });
+    final pokemonList = await pokeApi.getPokemonList(_pokemonList.size);
+    setState(() {
+      _pokemonList = _pokemonList.plus(pokemonList);
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: GridView.count(
-          controller: ScrollController(),
-          crossAxisCount: 2,
-          children: _generatePokemonItems()
+        body: CustomScrollView(
+          controller: _scrollController,
+          slivers: <Widget>[
+            SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (ctx, index) {
+                  var item = _pokemonList[index];
+                  var randomColorIndex = new Random().nextInt(colors.length);
+                  return PokemonCard(
+                    id: item.id,
+                    image: getPokemonImage(item.id),
+                    color: colors[randomColorIndex],
+                    key: ValueKey(item.id)
+                  );
+                },
+                childCount: _pokemonList.size
+              ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _isLoading ? Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                child: CircularProgressIndicator(),
+              ) : SizedBox()
+            )
+          ],
         )
       )
     );

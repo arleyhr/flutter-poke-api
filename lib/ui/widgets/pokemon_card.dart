@@ -4,16 +4,16 @@ class PokemonCard extends StatelessWidget {
   String id;
   String image;
   Color color;
+  Function onTap;
   ValueKey key;
 
-  PokemonCard({@required this.id, @required this.image, @required this.color, this.key });
+  PokemonCard({@required this.id, @required this.image, @required this.color, @required this.onTap, this.key });
 
   @override
   Widget build(BuildContext context) {
     return Material(
         child: InkWell(
-          onTap: () {
-          },
+          onTap: onTap,
           child: Container(
             child: Stack(
               alignment: Alignment.center,
@@ -22,9 +22,12 @@ class PokemonCard extends StatelessWidget {
                   height: double.infinity,
                   width: double.infinity,
                   color: color,
-                  child: Image(
+                  child: Hero(
+                    tag: 'pokemon-$id',
+                    child: Image(
                     fit: BoxFit.cover,
                     image: NetworkImage(image),
+                  ),
                   ),
                 ),
                 Positioned(

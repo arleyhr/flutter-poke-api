@@ -60,7 +60,14 @@ class _HomeState extends State<Home> {
                     id: item.id,
                     image: getPokemonImage(item.id),
                     color: colors[randomColorIndex],
-                    key: ValueKey(item.id)
+                    key: ValueKey(item.id),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/detail', arguments: {
+                        'id': item.id,
+                        'name': item.name,
+                        'image': getPokemonImage(item.id)
+                      });
+                    }
                   );
                 },
                 childCount: _pokemonList.size
